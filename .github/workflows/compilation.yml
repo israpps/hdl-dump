@@ -29,11 +29,11 @@ jobs:
             ls
             echo -------------------------------
 
-      - name: upload diskload
-      - uses: actions/upload-artifact@v2
-         with:
-          name: diskload
-          path: diskload/*.elf
+    - name: upload diskload
+    - uses: actions/upload-artifact@v2
+        with:
+         name: diskload
+         path: diskload/*.elf
 
 
   build:
