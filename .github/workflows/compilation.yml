@@ -31,9 +31,9 @@ jobs:
 
     - name: upload diskload
     - uses: actions/upload-artifact@v2
-        with:
-         name: diskload
-         path: diskload/*.elf
+      with:
+        name: diskload
+        path: diskload/*.elf
 
 
   build:
