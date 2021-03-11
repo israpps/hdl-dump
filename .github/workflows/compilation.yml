@@ -5,6 +5,36 @@ on:
   pull_request:
 
 jobs:
+
+   build-diskload:
+    runs-on: ubuntu-latest
+    container: ps2dev/ps2dev:v1.0
+    steps:
+
+    - name: Install dependencies
+      run: |
+        apk add build-base git zip
+
+    - name: checkout
+    - uses: actions/checkout@v2
+      run: |
+        git fetch --prune --unshallow
+
+    - name: compile
+      run: |
+            cd diskload
+            make
+            echo -------------------------------
+            ls
+            echo -------------------------------
+
+      - name: upload diskload
+      - uses: actions/upload-artifact@v2
+         with:
+          name: diskload
+          path: diskload/*.elf
+
+
   build:
     runs-on: ${{ matrix.os }}
     strategy:
