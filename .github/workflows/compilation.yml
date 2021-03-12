@@ -7,7 +7,7 @@ on:
 
 jobs:
 
-  build-diskload:
+   build-diskload:
     runs-on: ubuntu-latest
     container: ps2dev/ps2dev:v1.0
     steps:
@@ -36,7 +36,7 @@ jobs:
         path: diskload/*.elf
 
 
-  build:
+   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
