@@ -7,7 +7,7 @@ on:
 
 jobs:
 
-   build-diskload:
+  build-diskload:
     runs-on: ubuntu-latest
     container: ps2dev/ps2dev:v1.0
     steps:
