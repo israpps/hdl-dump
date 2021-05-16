@@ -47,8 +47,8 @@ jobs:
       run: |
         make --trace XC=win RELEASE=yes
         mkdir -p rel
+        cp hdl_dump.exe HDL.EXE
         mv hdl_dump.exe rel/
-        mv hdl_dump.exe HDL.EXE
         make clean
         make --trace -C gui XC=win RELEASE=yes
         mv gui/hdl_dumb.exe rel/        
