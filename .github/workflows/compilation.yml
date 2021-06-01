@@ -134,3 +134,18 @@ jobs:
         draft: true
         files: |
           *tar.gz
+
+  trigger-auto-update:
+    runs-on: ubuntu-latest
+    needs: [release]
+    strategy:
+      matrix:
+    steps:
+    - name: trigger israpps auto-update system
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+      uses: peter-evans/repository-dispatch@v1
+      with:
+          token: ${{ secrets.IUS }}
+          repository: israpps/HDL-Batch-installer
+          event-type: Component_update
+          client-payload: '{"sha": "${{ github.sha }}"}'
