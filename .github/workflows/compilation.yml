@@ -145,5 +145,5 @@ jobs:
       with:
           token: ${{ secrets.IUS }}
           repository: israpps/HDL-Batch-installer
-          event-type: Component_update
+          event-type: HDL_Dump_Updated
           client-payload: '{"sha": "${{ github.sha }}"}'
