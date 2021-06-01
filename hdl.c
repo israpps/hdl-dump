@@ -96,7 +96,7 @@ static const char *HDL_HDR1 =
 
 static const char *HDL_HDR2 =
     "PS2X\n"
-    "title0 = miniOPL\n"              /* "HD Loader" */
+    "title0 = MiniOPL\n"              /* "HD Loader" */
     "title1 = %s\n"                   /* game title */
     "bgcola = %u\n"                   /* transparency=64 */
     "bgcol0 = %u,%u,%u\n"             /* 22, 47, 92 */
@@ -120,7 +120,7 @@ static const char *HDL_HDR3 =
     "title_sub_id = 0\n"
     "release_date = 20000101\n"
     "developer_id =\n"
-    "publisher_id = miniOPL\n" /* hdloader */
+    "publisher_id = MiniOPL\n" /* hdloader */
     "note =\n"                 /* 22, 47, 92 */
     "content_web =\n"
     "image_topviewflag = 0\n"
