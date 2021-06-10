@@ -715,7 +715,7 @@ int hdd_inject_header(hio_t *hio,
 
 /**************************************************************/
 void hdl_pname(const char *startup_name, const char *name,
-               char partition_name[PS2_PART_IDMAX + 1])
+               char partition_name[PS2_PART_IDMAX + 1], int prefixmode)
 {
     u_int32_t game_name_len = 0;
     char *p;
@@ -724,7 +724,10 @@ void hdl_pname(const char *startup_name, const char *name,
     game_name_len = strlen(name) < game_name_len ? strlen(name) : game_name_len;
     if (name[0] != '_' && name[1] != '_') {
         game_name_len = PS2_PART_IDMAX - 1 - 3 - 10 - 5; /* limit partition name length */
+        if (prefixmode==0)
         strcpy(partition_name, "PP.");
+        else
+        strcpy(partition_name, "+P.");
         memmove(partition_name + 3, "SLUS-00000", 10); /*if startup file name absent*/
         if (startup_name != NULL) {
             memmove(partition_name + 3, startup_name, 4); /*we will copy first 4 symbols*/
@@ -978,7 +981,8 @@ int hdl_inject(hio_t *hio,
                iin_t *iin,
                hdl_game_t *details,
                int slice_index,
-               progress_t *pgs)
+               progress_t *pgs,
+               int prefixmode)
 {
     /*@only@*/ apa_toc_t *toc = NULL;
     int result = apa_toc_read_ex(hio, &toc);

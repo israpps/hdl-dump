@@ -944,7 +944,8 @@ inject(const dict_t *config,
        unsigned short dma,
        int is_dvd,
        int slice_index,
-       progress_t *pgs)
+       progress_t *pgs,
+       int prefixmode)
 {
     hdl_game_t game;
     int result = RET_OK;
@@ -988,7 +989,7 @@ inject(const dict_t *config,
                                  game.name, game.compat_flags);
 
             if (result == RET_OK)
-                result = hdl_inject(hio, iin, &game, slice_index, pgs);
+                result = hdl_inject(hio, iin, &game, slice_index, pgs, prefixmode);
 
             (void)hio->close(hio), hio = NULL;
         }
@@ -1853,6 +1854,7 @@ int main(int argc, char *argv[])
             int is_dvd =
                 caseless_compare(command_name, CMD_HDL_INJECT_CD) ? 0 : 1;
             int i;
+            int alt_part_prefix = 0;
 
             if (!(argc >= 5 && argc <= 9))
                 show_usage_and_exit(argv[0], command_name);
@@ -1872,6 +1874,14 @@ int main(int argc, char *argv[])
                 else
                     /* startup file */
                     startup = argv[i];
+
+                else if (argv[i][0] == '$')
+                {
+                    if (argv[i][1] == 'G' && argv[i][2] == 'P')
+                    alt_part_prefix = 1;
+                    else
+                    alt_part_prefix = 0;
+                }
             }
 
             if (dma == 0) {
@@ -1888,7 +1898,7 @@ int main(int argc, char *argv[])
 
             handle_result_and_exit(inject(config, argv[2], argv[3], argv[4],
                                           startup, compat_flags, dma, is_dvd,
-                                          slice_index, get_progress()),
+                                          slice_index, get_progress(),alt_part_prefix),
                                    argv[2], argv[3]);
         }
 

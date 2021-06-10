@@ -88,7 +88,8 @@ int hdl_inject(hio_t *hio,
                iin_t *iin,
                hdl_game_t *details,
                int slice_index,
-               progress_t *pgs);
+               progress_t *pgs,
+               int prefixmode);
 
 
 int hdl_glist_read(hio_t *hio,
