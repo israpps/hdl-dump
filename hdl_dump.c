@@ -1868,20 +1868,17 @@ int main(int argc, char *argv[])
                          (argv[i][0] == '0' && argv[i][1] == 'x'))
                     /* compatibility flags */
                     compat_flags = parse_compat_flags(argv[i]);
+                else if (argv[i][0] == '$')
+                {
+                    if (strcmp(argv[i],"$OSD_HIDE")==0)
+                    alt_part_prefix = 1;
+                }
                 else if (argv[i][0] == '*')
                     /* dma modes */
                     dma = parse_dma(argv[i]);
                 else
                     /* startup file */
                     startup = argv[i];
-
-                else if (argv[i][0] == '$')
-                {
-                    if (argv[i][1] == 'G' && argv[i][2] == 'P')
-                    alt_part_prefix = 1;
-                    else
-                    alt_part_prefix = 0;
-                }
             }
 
             if (dma == 0) {
