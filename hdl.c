@@ -724,11 +724,7 @@ void hdl_pname(const char *startup_name, const char *name,
     game_name_len = strlen(name) < game_name_len ? strlen(name) : game_name_len;
     if (name[0] != '_' && name[1] != '_') {
         game_name_len = PS2_PART_IDMAX - 1 - 3 - 10 - 5; /* limit partition name length */
-        #ifdef OSD_HIDE
-        strcpy(partition_name, "+P.");
-        #else
         strcpy(partition_name, "PP.");
-        #endif //OSD_HIDE
         memmove(partition_name + 3, "SLUS-00000", 10); /*if startup file name absent*/
         if (startup_name != NULL) {
             memmove(partition_name + 3, startup_name, 4); /*we will copy first 4 symbols*/

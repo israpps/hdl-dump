@@ -71,37 +71,7 @@ jobs:
         name: HDL4INSTALLER
         path: |
           HDL.EXE
-
-  build-win_OSD-HIDE:
-    runs-on: ubuntu-latest
-    container: dockcross/windows-static-x86:latest
-    
-    steps:       
-    - uses: actions/checkout@v2
-
-    - name: Compile windows version with cross-compilator
-      run: |
-        make --trace XC=win RELEASE=yes OSD=HIDE
-        mkdir -p rel
-        cp hdl_dump.exe HDL_OSD.EXE
-        make clean  
-    
-    - uses: actions/upload-artifact@v2
-      with:
-        name: HDL4INSTALLER_OSD
-        path: |
-          HDL_OSD.EXE
-
-    - name: Upload HDL Dump 4 installer
-      if: github.ref == 'refs/heads/master'
-      uses: marvinpinto/action-automatic-releases@latest
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: true
-        automatic_release_tag: "hdlinst-OSD"
-        title: "latest HDL Dump [OSD_MOD]"
-        files: |
-          HDL_OSD.EXE     
+          
   release:
     needs: [build, build-win]
     runs-on: ubuntu-latest

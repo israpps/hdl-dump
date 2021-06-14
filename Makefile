@@ -78,10 +78,6 @@ ifeq ($(XC), win)
   WINDRES = $(MXE_TARGETS)-windres
 endif
 
-ifeq ($(OSD),HIDE)
-  CFLAGS += -DOSD_HIDE
-endif
-
 # Windows/Unix/Linux build
 ifeq ($(WINDOWS), yes)
   SOURCES += iin_spti.c iin_aspi.c aspi_hlio.c osal_win32.c
