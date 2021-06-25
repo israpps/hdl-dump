@@ -173,6 +173,11 @@ lint2:
 		-weak -bufferoverflowhigh +longintegral +ignoresigns -ifempty \
 		-varuse -initallelements $(SOURCES:osal_unix.c=)
 
+format:
+	find . -type f -a \( -iname \*.h -o -iname \*.c \) | xargs clang-format -i
+
+format-check:
+	@! find . -type f -a \( -iname \*.h -o -iname \*.c \) | xargs clang-format -style=file -output-replacements-xml | grep "<replacement "
 
 # rules below
 rsrc.o: rsrc.rc
@@ -193,7 +198,7 @@ $(BINARY): $(OBJECTS)
 	@echo -e "\tDEP $<"
 	@$(CC) -MM $(CFLAGS) $< > $@
 
-
-ifneq ($(MAKECMDGOAL),rmdeps)
+GOALS := rmdeps format clean format-check lint lint2
+ifeq (,$(filter $(GOALS),$(MAKECMDGOALS)))
   -include $(DEPENDS)
 endif
