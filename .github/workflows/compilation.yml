@@ -2,6 +2,10 @@ name: CI-compile
 
 on:
   push:
+    paths-ignore:
+      - 'endpoints/**'
+      - '**.MD'
+
   pull_request:
 
 jobs:
