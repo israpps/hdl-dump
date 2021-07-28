@@ -19,7 +19,7 @@ jobs:
         cd endpoints
         echo "{">HDLBinst1.JSON
         echo "\"schemaVersion\": 1,">>HDLBinst1.JSON
-        echo "\"label\": \"hello\","
+        echo "\"label\": \"HDL Dump\",">>HDLBinst1.JSON
         echo "\"message\": \"${{ steps.slug.outputs.sha8 }}\",">>HDLBinst1.JSON
         echo "\"color\": \"green\"">>HDLBinst1.JSON
         echo "}">>HDLBinst1.JSON
