@@ -1,4 +1,4 @@
-name: CI-compile
+name: had updater
 
 on:
   push:
@@ -17,8 +17,12 @@ jobs:
     - name: rewrite JSON
       run: |
         cd endpoints
-        echo "{\"message\": \"${{ steps.slug.outputs.sha8 }}\"}">HDLBinst1.JSON
-      
+        echo "{">HDLBinst1.JSON
+        echo "\"schemaVersion\": 1,">>HDLBinst1.JSON
+        echo "\"label\": \"hello\","
+        echo "\"message\": \"${{ steps.slug.outputs.sha8 }}\",">>HDLBinst1.JSON
+        echo "\"color\": \"green\"">>HDLBinst1.JSON
+        echo "}">HDLBinst1.JSON
     - uses: EndBug/add-and-commit@v7
       with:
         default_author: github_actions
