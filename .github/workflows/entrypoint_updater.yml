@@ -17,7 +17,7 @@ jobs:
     - name: rewrite JSON
       run: |
         cd endpoints
-        DATEE=`date '+[%Y-%m-%d]'`
+        DATEE=`date '+%Y-%m-%d'`
         echo "{">HDLBinst1.JSON
         echo "\"schemaVersion\": 1,">>HDLBinst1.JSON
         echo "\"label\": \"HDL Dump\",">>HDLBinst1.JSON
