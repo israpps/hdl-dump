@@ -85,7 +85,7 @@ ifeq ($(XC), win)
 endif
 
 
-CFLAGS += -mwindows -D_BUILD_WIN32
+CFLAGS +=  -D_BUILD_WIN32
 LDFLAGS += -lwsock32 -lcomctl32 -lwinmm
 
 # whether to include ASPI support or not
