@@ -98,7 +98,7 @@ static const char *HDL_HDR1 =
 
 static const char *HDL_HDR2 =
     "PS2X\n"
-    "title0 = OPL Launcher\n"              /* "HD Loader" */
+    "title0 = OPL Launcher\n"         /* "HD Loader" */
     "title1 = %s\n"                   /* game title */
     "bgcola = %u\n"                   /* transparency=64 */
     "bgcol0 = %u,%u,%u\n"             /* 22, 47, 92 */
@@ -252,7 +252,7 @@ prepare_main(const hdl_game_t *details,
         } else if ((result == OSAL_OK) && (!strncmp(iconsys, "PS2X", 4))) {
             strcpy(icon_props, iconsys);
         } else {
-            sprintf(icon_props, HDL_HDR2, details->name, 64,
+            sprintf(icon_props, HDL_HDR2, details->name, 0,
                     22, 47, 92, 3, 10, 28, 3, 10, 28, 22, 47, 92,
                     0.5, 0.5, 0.5, 0.0, -0.4, -1.0, 0.5, -0.5, 0.5,
                     31, 31, 31, 62, 62, 55, 33, 42, 64, 18, 18, 49);
