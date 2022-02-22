@@ -41,6 +41,9 @@
 
 #define _MB *(1024 * 1024) /* really ugly :-) */
 
+const char *PPAA_MAGIC =
+    "PS2ICON3D";
+
 typedef struct ps2_partition_run_type
 {
     u_int32_t sector;
@@ -527,7 +530,7 @@ setup_main_part(/*@out@*/ ps2_partition_header_t *part,
             strlen(name) > PS2_PART_IDMAX ? PS2_PART_IDMAX : strlen(name));
     set_u32(&part->start, partitions[0].sector);
     set_u32(&part->length, partitions[0].size_in_mb * ((1 _MB) / 512));
-    set_u16(&part->type, 0x1337);
+    set_u16(&part->type, PS2_HDL_PARTITION);
     set_u16(&part->flags, 0);
     set_u32(&part->nsub, partitions_used - 1);
     set_ps2fs_datetime(&part->created, time(NULL));
@@ -554,7 +557,7 @@ setup_sub_part(ps2_partition_header_t *part,
     set_u32(&part->prev, partitions[index - 1].sector);
     set_u32(&part->start, partitions[index].sector);
     set_u32(&part->length, partitions[index].size_in_mb * ((1 _MB) / 512));
-    set_u16(&part->type, 0x1337);
+    set_u16(&part->type, PS2_HDL_PARTITION);
     set_u16(&part->flags, PS2_PART_FLAG_SUB);
     set_u32(&part->nsub, 0);
     set_ps2fs_datetime(&part->created, time(NULL));
@@ -1252,4 +1255,57 @@ int apa_dump_mbr(const dict_t *config, const char *device, const char *file_name
     hio = NULL;
 
     return (result);
+}
+
+/**************************************************************/
+char *ppa_files_name[] = {
+    "system.cnf", /* Contains settings used when the application starts */
+    "icon.sys",   /* Contains settings for displaying the application’s icon */
+    "list.ico",   /* Contains data for the icon displayed in the list of applications */
+    "del.ico",    /* Contains data for the icon displayed when the application is deleted (can be the same as the list-view icon) */
+    "boot.kelf",  /* https://github.com/ps2homebrew/OPL-Launcher */
+    "boot.kirx",  /* found on some retail games */
+    NULL,
+};
+
+int apa_dump_header(hio_t *hio, u_int32_t starting_partition_sector)
+{
+    ppaa_partition_t *head;
+    int index = 0, result;
+    char *buffer;
+    u_int32_t bytes_read;
+
+    buffer = osal_alloc(4 _MB);
+    result = hio->read(hio, starting_partition_sector + PPAA_START / 512, 4 _MB / 512, buffer, &bytes_read);
+    if (result != RET_OK)
+        return (result);
+
+    head = (ppaa_partition_t *)buffer;
+
+    if (strncmp(head->magic, PPAA_MAGIC, sizeof(head->magic)))
+        return RET_BAD_APA;
+
+    while (index < 62) {
+        ssize_t bytes_to_read = head->file[index].size;
+        char *filename, genname[10];
+
+        if (bytes_to_read == 0)
+            break;
+
+        if (ppa_files_name[index])
+            filename = ppa_files_name[index];
+        else {
+            filename = genname;
+            sprintf(genname, "HEADER_%d", index);
+        }
+
+        fprintf(stdout, "%-10s offset=0x%-10x size=%lu\n", filename, head->file[index].offset, bytes_to_read);
+        result = write_file(filename, buffer + head->file[index].offset, bytes_to_read);
+        if (result != RET_OK)
+            return (result);
+        index++;
+    }
+
+    osal_free(buffer);
+    return 0;
 }

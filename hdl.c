@@ -87,9 +87,6 @@ struct IconSysData
  */
 
 
-static const char *HDL_HDR0 =
-    "PS2ICON3D";
-
 static const char *HDL_HDR1 =
     "BOOT2 = PATINFO\n"
     "VER = 1.20\n"
@@ -262,7 +259,7 @@ prepare_main(const hdl_game_t *details,
         /*
          *  1000: 50 53 32 49 43 4f 4e 33  44 00 00 00 00 00 00 00  PS2ICON3D.......
          */
-        memcpy(buffer_4m + 0x001000, HDL_HDR0, strlen(HDL_HDR0));
+        memcpy(buffer_4m + 0x001000, PPAA_MAGIC, strlen(PPAA_MAGIC));
 
         /*
          *         +--+--+--+- system.cnf offset relative to 0x1000
@@ -503,7 +500,7 @@ int hdd_inject_header(hio_t *hio,
          *         |  |  |  |  +--+--+--+- PATINFO.KELF length in bytes
          *         +--+--+--+- PATINFO.KELF offset relative to 0x1000 (optional)
          */
-        memcpy(buffer_4m + 0x001000, HDL_HDR0, strlen(HDL_HDR0));
+        memcpy(buffer_4m + 0x001000, PPAA_MAGIC, strlen(PPAA_MAGIC));
 
         /* system.cnf
          *  1200: 42 4f 4f 54 32 20 3d 20 50 41 54 49 4e 46 4f 0a  BOOT2 = PATINFO.
@@ -520,7 +517,7 @@ int hdd_inject_header(hio_t *hio,
                 set_u32(buffer_4m + 0x001010, 0x0200);
                 set_u32(buffer_4m + 0x001014, syscnf_length);
                 memcpy(buffer_4m + 0x001200, syscnf, syscnf_length);
-                fprintf(stdout, "Succesfully read system.cnf\n");
+                fprintf(stdout, "Successfully read system.cnf\n");
             }
         } else {
             fprintf(stdout, "Skipped system.cnf\n");
@@ -543,7 +540,7 @@ int hdd_inject_header(hio_t *hio,
                 set_u32(buffer_4m + 0x001018, 0x0400);
                 set_u32(buffer_4m + 0x00101C, iconsys_length);
                 memcpy(buffer_4m + 0x001400, iconsys, iconsys_length);
-                fprintf(stdout, "Succesfully read icon.sys\n");
+                fprintf(stdout, "Successfully read icon.sys\n");
             }
         } else if ((result == OSAL_OK) && (!strncmp(iconsys, "PS2D", 4))) {
             char icon_props[1024];
@@ -597,7 +594,7 @@ int hdd_inject_header(hio_t *hio,
                 set_u32(buffer_4m + 0x001028, 0x0800);
                 set_u32(buffer_4m + 0x00102C, icon_length);
                 memcpy(buffer_4m + 0x001800, icon, icon_length);
-                fprintf(stdout, "Succesfully read list.ico\n");
+                fprintf(stdout, "Successfully read list.ico\n");
             }
         } else {
             fprintf(stdout, "Skipped list.ico\n");
@@ -651,7 +648,7 @@ int hdd_inject_header(hio_t *hio,
                 memcpy(buffer_4m + 0x111000, patinfo_header, patinfo_header_length);
                 memcpy(buffer_4m + 0x111000 + patinfo_header_length, patinfo, patinfo_length);
                 memcpy(buffer_4m + 0x111000 + patinfo_kelf_length - patinfo_footer_length, patinfo_footer, patinfo_footer_length);
-                fprintf(stdout, "Succesfully read boot.elf\n");
+                fprintf(stdout, "Successfully read boot.elf\n");
             }
         } else {
             fprintf(stdout, "Skipped boot.elf\n");
@@ -668,7 +665,7 @@ int hdd_inject_header(hio_t *hio,
                     set_u32(buffer_4m + 0x001030, 0x110000);
                     set_u32(buffer_4m + 0x001034, patinfo_length);
                     memcpy(buffer_4m + 0x111000, patinfo, patinfo_length);
-                    fprintf(stdout, "Succesfully read boot.kelf\n");
+                    fprintf(stdout, "Successfully read boot.kelf\n");
                 } else {
                     /* if want to completely remove kelf - we need zero-sized boot.kelf
                      * For some reason HDD Browser 2.00 ignores system.cnf boot2
@@ -697,7 +694,7 @@ int hdd_inject_header(hio_t *hio,
                     set_u32(buffer_4m + 0x001038, 0x300000);
                     set_u32(buffer_4m + 0x00103C, kirx_length);
                     memcpy(buffer_4m + 0x301000, kirx, kirx_length);
-                    fprintf(stdout, "Succesfully read boot.kirx\n");
+                    fprintf(stdout, "Successfully read boot.kirx\n");
                 } else {
                     set_u32(buffer_4m + 0x001038, 0x000000);
                     set_u32(buffer_4m + 0x00103C, kirx_length);
@@ -1053,11 +1050,10 @@ int hdl_inject(hio_t *hio,
 
 
 /**************************************************************/
-static int
-hdl_ginfo_read(hio_t *hio,
-               int slice_index,
-               const ps2_partition_header_t *part,
-               hdl_game_info_t *ginfo)
+int hdl_ginfo_read(hio_t *hio,
+                   int slice_index,
+                   const ps2_partition_header_t *part,
+                   hdl_game_info_t *ginfo)
 {
     /* data we're interested in starts @ 0x101000 and is header
      * plus information for up to 65 partitions
@@ -1112,7 +1108,7 @@ hdl_games_count(const apa_slice_t *slice)
     size_t i, count = 0;
     for (i = 0; i < slice->part_count; ++i)
         count += (get_u16(&slice->parts[i].header.flags) == 0x00 &&
-                  get_u16(&slice->parts[i].header.type) == 0x1337);
+                  get_u16(&slice->parts[i].header.type) == PS2_HDL_PARTITION);
     return (count);
 }
 
@@ -1130,7 +1126,7 @@ hdl_glist_read_slice(hio_t *hio,
         const ps2_partition_header_t *part =
             &toc->slice[slice_index].parts[i].header;
         if (get_u16(&part->flags) == 0x00 &&
-            get_u16(&part->type) == 0x1337)
+            get_u16(&part->type) == PS2_HDL_PARTITION)
             result = hdl_ginfo_read(hio, slice_index, part,
                                     glist->games + glist->count++);
     }
