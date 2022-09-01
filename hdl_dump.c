@@ -1484,7 +1484,6 @@ void restoreConsole(void) {
 		exit(GetLastError());
 	}
 }
-
 #endif
 
 void QUIT(int VAL)
@@ -1960,7 +1959,9 @@ handle_result_and_exit(int result,
 
 int main(int argc, char *argv[])
 {
+#if defined(_BUILD_WIN32)
     setupConsole();
+#endif
     dict_t *config = NULL;
 
     /* load configuration */
