@@ -1449,6 +1449,52 @@ get_progress(void)
 
 
 /**************************************************************/
+#if defined(_BUILD_WIN32)
+static HANDLE stdoutHandle;
+static DWORD outModeInit;
+
+void setupConsole(void) {
+	DWORD outMode = 0;
+	stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	if(stdoutHandle == INVALID_HANDLE_VALUE) {
+		exit(GetLastError());
+	}
+	
+	if(!GetConsoleMode(stdoutHandle, &outMode)) {
+		exit(GetLastError());
+	}
+
+	outModeInit = outMode;
+	
+    // Enable ANSI escape codes
+	outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+	if(!SetConsoleMode(stdoutHandle, outMode)) {
+		exit(GetLastError());
+	}	
+}
+
+void restoreConsole(void) {
+    // Reset colors
+    printf("\x1b[0m");	
+	
+    // Reset console mode
+	if(!SetConsoleMode(stdoutHandle, outModeInit)) {
+		exit(GetLastError());
+	}
+}
+
+#endif
+
+void QUIT(int VAL)
+{
+#if defined(_BUILD_WIN32)
+	restoreConsole();
+#endif
+	exit(VAL);
+}
+/**************************************************************/
 /*@noreturn@*/ static void
 show_usage_and_exit(const char *app_path,
                     const char *command)
@@ -1716,7 +1762,7 @@ show_usage_and_exit(const char *app_path,
         }
     }
 
-    exit(100);
+    QUIT(100);
 }
 
 static void
@@ -1729,10 +1775,10 @@ map_device_name_or_exit(const char *input,
             return;
         case RET_BAD_FORMAT:
             fprintf(stderr, "%s: bad format.\n", input);
-            exit(100 + RET_BAD_FORMAT);
+            QUIT(100 + RET_BAD_FORMAT);
         case RET_BAD_DEVICE:
             fprintf(stderr, "%s: bad device.\n", input);
-            exit(100 + RET_BAD_DEVICE);
+            QUIT(100 + RET_BAD_DEVICE);
     }
 }
 
@@ -1748,7 +1794,7 @@ handle_result_and_exit(int result,
 
     switch (result) {
         case RET_OK:
-            exit(0);
+            QUIT(0);
 
         case RET_ERR: {
             unsigned long err_code = osal_get_last_error_code();
@@ -1759,15 +1805,15 @@ handle_result_and_exit(int result,
             } else
                 fprintf(stderr, "%08lx (%lu): Unknown error.\n", err_code, err_code);
         }
-            exit(1);
+            QUIT(1);
 
         case RET_NO_MEM:
             fprintf(stderr, "Out of memory.\n");
-            exit(2);
+            QUIT(2);
 
         case RET_NOT_APA:
             fprintf(stderr, "%s: not a PlayStation 2 HDD.\n", device);
-            exit(100 + RET_NOT_APA);
+            QUIT(100 + RET_NOT_APA);
 
         case RET_NOT_HDL_PART:
             fprintf(stderr, "%s: not a HDL partition", device);
@@ -1775,7 +1821,7 @@ handle_result_and_exit(int result,
                 fprintf(stderr, ": \"%s\".\n", partition);
             else
                 fprintf(stderr, ".\n");
-            exit(100 + RET_NOT_HDL_PART);
+            QUIT(100 + RET_NOT_HDL_PART);
 
         case RET_NOT_FOUND:
             fprintf(stderr, "%s: partition not found", device);
@@ -1783,138 +1829,138 @@ handle_result_and_exit(int result,
                 fprintf(stderr, ": \"%s\".\n", partition);
             else
                 fprintf(stderr, ".\n");
-            exit(100 + RET_NOT_FOUND);
+            QUIT(100 + RET_NOT_FOUND);
 
         case RET_NO_SPACE:
             fprintf(stderr, "%s: not enough free space.\n", device);
-            exit(100 + RET_NO_SPACE);
+            QUIT(100 + RET_NO_SPACE);
 
         case RET_BAD_APA:
             fprintf(stderr, "%s: APA partition is broken; aborting.\n", device);
-            exit(100 + RET_BAD_APA);
+            QUIT(100 + RET_BAD_APA);
 
         case RET_DIFFERENT:
             fprintf(stderr, "Contents are different.\n");
-            exit(100 + RET_DIFFERENT);
+            QUIT(100 + RET_DIFFERENT);
 
         case RET_INTERRUPTED:
             fprintf(stderr, "\nInterrupted.\n");
-            exit(100 + RET_INTERRUPTED);
+            QUIT(100 + RET_INTERRUPTED);
 
         case RET_PART_EXISTS:
             fprintf(stderr, "%s: partition with such name already exists: \"%s\".\n",
                     device, partition);
-            exit(100 + RET_PART_EXISTS);
+            QUIT(100 + RET_PART_EXISTS);
 
         case RET_BAD_ISOFS:
             fprintf(stderr, "%s: bad ISOFS.\n", device);
-            exit(100 + RET_BAD_ISOFS);
+            QUIT(100 + RET_BAD_ISOFS);
 
         case RET_NOT_PS_CDVD:
             fprintf(stderr, "%s: not a Playstation CD-ROM/DVD-ROM.\n", device);
-            exit(100 + RET_NOT_PS_CDVD);
+            QUIT(100 + RET_NOT_PS_CDVD);
 
         case RET_BAD_SYSCNF:
             fprintf(stderr, "%s: SYSTEM.CNF is not in the expected format.\n", device);
-            exit(100 + RET_BAD_SYSCNF);
+            QUIT(100 + RET_BAD_SYSCNF);
 
         case RET_NOT_COMPAT:
             fprintf(stderr, "Input or output is unsupported.\n");
-            exit(100 + RET_NOT_COMPAT);
+            QUIT(100 + RET_NOT_COMPAT);
 
         case RET_NOT_ALLOWED:
             fprintf(stderr, "Operation is not allowed.\n");
-            exit(100 + RET_NOT_ALLOWED);
+            QUIT(100 + RET_NOT_ALLOWED);
 
         case RET_BAD_COMPAT:
             fprintf(stderr, "Input or output is supported, but invalid.\n");
-            exit(100 + RET_BAD_COMPAT);
+            QUIT(100 + RET_BAD_COMPAT);
 
         case RET_SVR_ERR:
             fprintf(stderr, "Server reported error.\n");
-            exit(100 + RET_SVR_ERR);
+            QUIT(100 + RET_SVR_ERR);
 
         case RET_1ST_LONGER:
             fprintf(stderr, "First input is longer, but until then the contents are the same.\n");
-            exit(100 + RET_1ST_LONGER);
+            QUIT(100 + RET_1ST_LONGER);
 
         case RET_2ND_LONGER:
             fprintf(stderr, "Second input is longer, but until then the contents are the same.\n");
-            exit(100 + RET_2ND_LONGER);
+            QUIT(100 + RET_2ND_LONGER);
 
         case RET_FILE_NOT_FOUND:
             fprintf(stderr, "File not found.\n");
-            exit(100 + RET_FILE_NOT_FOUND);
+            QUIT(100 + RET_FILE_NOT_FOUND);
 
         case RET_BROKEN_LINK:
             fprintf(stderr, "Broken link (linked file not found).\n");
-            exit(100 + RET_BROKEN_LINK);
+            QUIT(100 + RET_BROKEN_LINK);
 
         case RET_CROSS_128GB:
             fprintf(stderr, "Unable to limit HDD size to 128GB - data behind 128GB mark.\n");
-            exit(100 + RET_CROSS_128GB);
+            QUIT(100 + RET_CROSS_128GB);
 
 #if defined(_BUILD_WIN32)
         case RET_ASPI_ERROR:
             fprintf(stderr, "ASPI error: 0x%08lx (SRB/Sense/ASC/ASCQ) %s\n",
                     aspi_get_last_error_code(),
                     aspi_get_last_error_msg());
-            exit(100 + RET_ASPI_ERROR);
+            QUIT(100 + RET_ASPI_ERROR);
 #endif
 
         case RET_NO_DISC_DB:
             fprintf(stderr, "Disc database file could not be found.\n");
-            exit(100 + RET_NO_DISC_DB);
+            QUIT(100 + RET_NO_DISC_DB);
 
         case RET_NO_DDBENTRY:
             fprintf(stderr, "There is no entry for that game in the disc database.\n");
-            exit(100 + RET_NO_DDBENTRY);
+            QUIT(100 + RET_NO_DDBENTRY);
 
         case RET_DDB_INCOMPATIBLE:
             fprintf(stderr, "Game is incompatible, according to disc database.\n");
-            exit(100 + RET_DDB_INCOMPATIBLE);
+            QUIT(100 + RET_DDB_INCOMPATIBLE);
 
         case RET_TIMEOUT:
             fprintf(stderr, "Network communication timeout.\n");
-            exit(100 + RET_TIMEOUT);
+            QUIT(100 + RET_TIMEOUT);
 
         case RET_PROTO_ERR:
             fprintf(stderr, "Network communication protocol error.\n");
-            exit(100 + RET_PROTO_ERR);
+            QUIT(100 + RET_PROTO_ERR);
 
         case RET_INVARIANT:
             fprintf(stderr, "Errm... that is not allowed. Nope. No way.\n");
-            exit(100 + RET_INVARIANT);
+            QUIT(100 + RET_INVARIANT);
 
 #if defined(_BUILD_WIN32)
         case RET_SPTI_ERROR:
             fprintf(stderr, "SPTI error: 0x%08lx (SRB/Sense/ASC/ASCQ) %s\n",
                     spti_get_last_error_code(),
                     spti_get_last_error_msg());
-            exit(100 + RET_SPTI_ERROR);
+            QUIT(100 + RET_SPTI_ERROR);
 #endif
 
         case RET_MBR_KELF_SIZE:
             fprintf(stderr, "The file size exceeds the %d bytes limit.\n", MAX_MBR_KELF_SIZE);
-            exit(100 + RET_MBR_KELF_SIZE);
+            QUIT(100 + RET_MBR_KELF_SIZE);
 
         case RET_INVALID_KELF:
             fprintf(stderr, "Invalid kelf header.\n");
-            exit(100 + RET_INVALID_KELF);
+            QUIT(100 + RET_INVALID_KELF);
 
         case RET_MULTITRACK:
             fprintf(stderr, "Multitrack images isnt supported. Please convert to 1 cue/bin with CDMage before.\n");
-            exit(100 + RET_MULTITRACK);
+            QUIT(100 + RET_MULTITRACK);
 
         default:
             fprintf(stderr, "%s: don't know what the error is: %d.\n", device, result);
-            exit(200);
+            QUIT(200);
     }
 }
 
-
 int main(int argc, char *argv[])
 {
+    setupConsole();
     dict_t *config = NULL;
 
     /* load configuration */
@@ -2265,5 +2311,6 @@ int main(int argc, char *argv[])
     } else {
         show_usage_and_exit(argv[0], NULL);
     }
+	QUIT(0);
     return (0); /* please compiler */
 }
