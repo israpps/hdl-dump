@@ -1467,7 +1467,7 @@ void setupConsole(void) {
 
 	outModeInit = outMode;
 	
-    // Enable ANSI escape codes
+    /* Enable ANSI escape codes */
 	outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
 	if(!SetConsoleMode(stdoutHandle, outMode)) {
@@ -1476,10 +1476,10 @@ void setupConsole(void) {
 }
 
 void restoreConsole(void) {
-    // Reset colors
+    /* Reset colors */
     printf("\x1b[0m");	
 	
-    // Reset console mode
+    /* Reset console mode */
 	if(!SetConsoleMode(stdoutHandle, outModeInit)) {
 		exit(GetLastError());
 	}
