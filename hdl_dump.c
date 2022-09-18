@@ -58,9 +58,9 @@
 
 
 #if defined(_BUILD_WIN32)
-#define UNBOLD
-#define BOLD
-#define WARNING_SIGN
+#define UNBOLD ""
+#define BOLD ""
+#define WARNING_SIGN ""
 #else
 #define UNBOLD       "\033[0m"
 #define BOLD         "\033[1m"
