@@ -655,13 +655,13 @@ delete_partition(const dict_t *config,
     /*@only@*/ apa_toc_t *toc = NULL;
     int result = apa_toc_read(config, device_name, &toc);
     if (result == RET_OK && toc != NULL) {
-        result = apa_HIDE_partition(toc, name);
+        result = apa_delete_partition(toc, name);
         if (result == RET_NOT_FOUND) { /* assume `name' is game name, instead of partition name */
             char partition_id[PS2_PART_IDMAX + 1];
             result = hdl_lookup_partition(config, device_name,
                                           name, partition_id);
             if (result == RET_OK)
-                result = apa_HIDE_partition(toc, partition_id);
+                result = apa_delete_partition(toc, partition_id);
         }
 
         if (result == RET_OK)
