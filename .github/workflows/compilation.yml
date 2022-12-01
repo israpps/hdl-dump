@@ -90,6 +90,17 @@ jobs:
     - name: Download artifacts
       uses: actions/download-artifact@v3
 
+    - name: Upload HDL Dump 4 HDL batch installer
+      if: github.ref == 'refs/heads/master'
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: true
+        automatic_release_tag: "hdlinst"
+        title: "latest HDL Dump"
+        files: |
+          HDL.EXE
+
     - name: Create pre-release
       if: github.ref == 'refs/heads/master'
       uses: marvinpinto/action-automatic-releases@latest
