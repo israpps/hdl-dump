@@ -661,7 +661,7 @@ delete_partition(const dict_t *config,
             result = hdl_lookup_partition(config, device_name,
                                           name, partition_id);
             if (result == RET_OK)
-                result = apa_HIDE_partition(toc, partition_id);
+                result = apa_delete_partition(toc, partition_id);
         }
 
         if (result == RET_OK)
