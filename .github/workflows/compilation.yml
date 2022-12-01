@@ -46,6 +46,7 @@ jobs:
       run: |
         make --trace XC=win RELEASE=yes
         mkdir -p rel
+        cp hdl_dump.exe HDL.EXE
         mv hdl_dump.exe rel/
         make clean
         make --trace -C gui XC=win RELEASE=yes
@@ -57,6 +58,17 @@ jobs:
 
     - name: Create tar archive
       run: tar -zcvf hdl-dump-${{ env.SHA }}-windows-latest.tar.gz rel
+
+    - name: Upload HDL Dump 4 HDL batch installer
+      if: github.ref == 'refs/heads/master'
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: true
+        automatic_release_tag: "hdlinst"
+        title: "latest HDL Dump"
+        files: |
+          HDL.EXE
 
     - uses: actions/upload-artifact@v3
       with:
@@ -102,3 +114,16 @@ jobs:
           hdl-dump-${{ env.SHA }}-windows-latest/*
           hdl-dump-${{ env.SHA }}-ubuntu-latest/*
           hdl-dump-${{ env.SHA }}-macos-latest/*
+
+  trigger-auto-update:
+    runs-on: ubuntu-latest
+    needs: [build-win]
+    steps:
+    - name: trigger israpps auto-update system
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+      uses: peter-evans/repository-dispatch@v1
+      with:
+          token: ${{ secrets.IUS }}
+          repository: israpps/HDL-Batch-installer
+          event-type: HDL_Dump_Updated
+          client-payload: '{"sha": "${{ github.sha }}"}'
