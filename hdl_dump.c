@@ -101,6 +101,7 @@
 #define CMD_CDVD_INFO      "cdvd_info"
 #define CMD_CDVD_INFO2     "cdvd_info2"
 #define CMD_POWER_OFF      "poweroff"
+#define CMD_HDD_DATA       "hdd_data"
 #if defined(INCLUDE_INJECT_MBR_CMD)
 #define CMD_INJECT_MBR "inject_mbr"
 #endif
@@ -394,7 +395,30 @@ show_toc(const dict_t *config,
     }
     return (result);
 }
+static int
+hdd_data(const dict_t *config,
+             const char *device_name)
+{
 
+    /*@only@*/ hio_t *hio = NULL;
+    int result = hio_probe(config, device_name, &hio);
+    if (result == RET_OK && hio != NULL) {
+        /*@only@*/ hdl_games_list_t *glist = NULL;
+        result = hdl_glist_read(hio, &glist);
+        if (result == RET_OK && glist != NULL) {
+            printf("total %uMB, used %uMB, available %uMB\n",
+                   (unsigned int)(glist->total_chunks * 128),
+                   (unsigned int)((glist->total_chunks -
+                                   glist->free_chunks) *
+                                  128),
+                   (unsigned int)(glist->free_chunks * 128));
+
+            hdl_glist_free(glist);
+        }
+        (void)hio->close(hio), hio = NULL;
+    }
+    return (result);
+}
 /**************************************************************/
 static int
 show_hdl_toc(const dict_t *config,
@@ -1590,6 +1614,9 @@ show_usage_and_exit(const char *app_path,
         {CMD_POWER_OFF, "ip",
          "power off Playstation 2", NULL,
          "192.168.0.10", NULL, 0},
+         {CMD_HDD_DATA, "device",
+         "prints hdd related information", NULL,
+         "hdd1:", NULL, 0},
 #if defined(INCLUDE_INJECT_MBR_CMD)
         {CMD_INJECT_MBR, "device input_file",
          "inject input_file into MBR",
@@ -2193,6 +2220,13 @@ int main(int argc, char *argv[])
                 show_usage_and_exit(argv[0], CMD_POWER_OFF);
 
             handle_result_and_exit(remote_poweroff(config, argv[2]),
+                                   argv[2], NULL);
+        }
+        else if (caseless_compare(command_name, CMD_HDD_DATA)) { /* PS2 power-off */
+            if (argc != 3)
+                show_usage_and_exit(argv[0], CMD_HDD_DATA);
+
+            handle_result_and_exit(hdd_data(config, argv[2]),
                                    argv[2], NULL);
         }
 
