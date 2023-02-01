@@ -302,11 +302,11 @@ int isofs_get_ps2_cdvd_info(iin_t *iin,
     if (result == OSAL_OK)
         result = isofs_find_pvd_addr(iin, &pvd_start_addr, &ptr_start_addr,
                                      system_id, info->volume_id, 0);
-
+#ifdef ISOFS_ENFORCE_PLAYSTATION_SYSTEM_ID
     if (result == OSAL_OK)
         if (strcmp(system_id, "PLAYSTATION") != 0)
             result = RET_NOT_PS_CDVD;
-
+#endif
     if (result == OSAL_OK)
         result = isofs_get_root_addr(iin, ptr_start_addr, &root_start_addr);
 
