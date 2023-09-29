@@ -60,7 +60,7 @@ jobs:
       run: tar -zcvf hdl-dump-${{ env.SHA }}-windows-latest.tar.gz rel
 
     - name: Upload HDL Dump 4 HDL batch installer
-      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/HDL-BATCH-INSTALLER-NEW'
       uses: marvinpinto/action-automatic-releases@latest
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
