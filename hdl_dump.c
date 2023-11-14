@@ -1768,6 +1768,17 @@ map_device_name_or_exit(const char *input,
             exit(100 + RET_BAD_DEVICE);
     }
 }
+static void
+dump_errtext(unsigned long err_code, char* error)
+{
+    FILE* ERRDUMP = fopen("errdump.txt", "w");
+    fprintf(stderr, "%08lx (%lu): %s\n", err_code, err_code, (error != NULL) ? error : "Unknown error");
+    if (ERRDUMP != NULL) {
+        fprintf(ERRDUMP, "%08lx (%lu): %s\n", err_code, err_code, (error != NULL) ? error : "Unknown error");
+        fflush(ERRDUMP);
+        fclose(ERRDUMP);
+    } else {fputs("Cannot open errdump.txt\n", stderr);}
+}
 
 /*@noreturn@*/ static void
 handle_result_and_exit(int result,
@@ -1783,15 +1794,8 @@ handle_result_and_exit(int result,
         case RET_OK:
             exit(0);
 
-        case RET_ERR: {
-            unsigned long err_code = osal_get_last_error_code();
-            char *error = osal_get_last_error_msg();
-            if (error != NULL) {
-                fprintf(stderr, "%08lx (%lu): %s\n", err_code, err_code, error);
-                osal_dispose_error_msg(error);
-            } else
-                fprintf(stderr, "%08lx (%lu): Unknown error.\n", err_code, err_code);
-        }
+        case RET_ERR:
+            dump_errtext(osal_get_last_error_code(), osal_get_last_error_msg());
             exit(1);
 
         case RET_NO_MEM:
