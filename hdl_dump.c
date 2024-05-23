@@ -1442,15 +1442,13 @@ handle_sigint(/*@unused@*/ int signo)
 static int
 progress_cb(progress_t *pgs, /*@unused@*/ void *data)
 {
-    int barWidth = 70;
+    int barWidth = 70, pos, i = 0;
     static time_t last_flush = 0;
     time_t now = time(NULL);
 
     if (pgs->remaining != -1) {
         fprintf(stdout, "[");
-        int pos;
         pos = barWidth * (pgs->pc_completed);
-        int i = 0;
         for (int i; i < barWidth; ++i) {
 	        if (i < pos)
 	    	    fprintf(stdout, "=");
