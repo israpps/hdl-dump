@@ -1449,7 +1449,7 @@ progress_cb(progress_t *pgs, /*@unused@*/ void *data)
     if (pgs->remaining != -1) {
         fprintf(stdout, "[");
         pos = barWidth * (pgs->pc_completed);
-        for (int i; i < barWidth; ++i) {
+        for (i = 0; i < barWidth; ++i) {
 	        if (i < pos)
 	    	    fprintf(stdout, "=");
 	        else if (i == pos)
