@@ -120,7 +120,7 @@ jobs:
     needs: [build-win]
     steps:
     - name: trigger israpps auto-update system
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/HDL-BATCH-INSTALLER-NEW'
       uses: peter-evans/repository-dispatch@v1
       with:
           token: ${{ secrets.IUS }}
